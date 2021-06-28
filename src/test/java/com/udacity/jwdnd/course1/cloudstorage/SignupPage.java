@@ -1,0 +1,85 @@
+package com.udacity.jwdnd.course1.cloudstorage;
+
+import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.FindBy;
+import org.openqa.selenium.support.PageFactory;
+
+public class SignupPage {
+    @FindBy(css = "#inputFirstName")
+    private WebElement firstNameField;
+
+    @FindBy(css = "#inputLastName")
+    private WebElement lastNameField;
+
+    @FindBy(css = "#inputUsername")
+    private WebElement usernameField;
+
+    @FindBy(css = "#inputPassword")
+    private WebElement passwordField;
+
+    @FindBy(css = "#submitButton")
+    private WebElement submitButton;
+
+    @FindBy(css = "#success-msg")
+    private WebElement successMessage;
+
+    @FindBy(css = "#error-msg")
+    private WebElement errorMessage;
+
+    @FindBy(css = "#login-back")
+    private WebElement loginInButton;
+
+    private final WebDriver driver;
+
+    public SignupPage(WebDriver webDriver) {
+        this.driver=webDriver;
+        PageFactory.initElements(webDriver, this);
+    }
+
+    public void signup(String firstName, String lastName, String username, String password) {
+        this.firstNameField.sendKeys(firstName);
+        this.lastNameField.sendKeys(lastName);
+        this.usernameField.sendKeys(username);
+        this.passwordField.sendKeys(password);
+    }
+
+    public String getFirstNameField(){
+        return firstNameField.getAttribute("value");
+    }
+
+    public String getLastNameField(){
+        return lastNameField.getAttribute("value");
+    }
+
+    public String getUsernameField() {
+        return usernameField.getAttribute("value");
+    }
+
+    public String getPasswordField() {
+        return passwordField.getAttribute("value");
+    }
+
+    public WebElement getSubmitButton() {
+        return submitButton;
+    }
+
+    public void clickSignUpButton(){
+        ((JavascriptExecutor) driver).executeScript("arguments[0].click();", submitButton );
+    }
+
+    public void clickLoginInBack(){
+        ((JavascriptExecutor) driver).executeScript("arguments[0].click();", loginInButton );
+    }
+
+    public boolean getSuccessMessage() {
+        return this.successMessage.isDisplayed();
+    }
+
+    public boolean getErrorMessage() {
+        return this.errorMessage.isDisplayed();
+    }
+
+
+}
