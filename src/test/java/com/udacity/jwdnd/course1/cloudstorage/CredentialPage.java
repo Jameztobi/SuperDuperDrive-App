@@ -6,131 +6,130 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
-
-import java.util.List;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
 
 public class CredentialPage {
-    /**
-     * define fields
-     */
-    // logout:
-    @FindBy(css=".logout-button")
-    private WebElement logoutButton;
+    private final WebDriver driver;
+    private JavascriptExecutor executor;
 
-    // define fields for Credential:
-    @FindBy(id = "nav-credentials-tab")
+    //Fields
+    @FindBy(id="nav-credentials-tab")
     private WebElement credTab;
 
-    // url field:
-    @FindBy(id = "credential-url")
-    private WebElement credentialUrl;
+    @FindBy(id="credUserId")
+    private WebElement credUserId;
 
-    // username field:
-    @FindBy(id = "credential-username")
-    private WebElement credentialUsername;
+    @FindBy(id="credential-url")
+    private WebElement credUrl;
 
-    //@FindBy(xpath = "//*[@id='credUsernameText']")
-    @FindBy(id = "credUsernameText")
-    private WebElement credentialUsernameText;
+    @FindBy(id="credential-username")
+    private WebElement credUsername;
 
-    // password field:
-    @FindBy(id = "credential-password")
-    private WebElement credentialPassword;
 
-    //@FindBy(xpath = "//*[@id='credPasswordText']")
-    @FindBy(id = "credPasswordText")
-    private WebElement credentialPasswordText;
+    @FindBy(id="credential-password")
+    private WebElement credPassword;
 
-    @FindBy(id = "success-message")
+
+    @FindBy(id="credUrlText")
+    private WebElement displayCredentialUrl;
+
+    @FindBy(id="credUsernameText")
+    private WebElement displayCredentialUsername;
+
+    @FindBy(id="credPasswordText")
+    private WebElement displayCredentialPassword;
+
+
+
+    //Button
+    @FindBy(name="addNewCredential")
+    private WebElement addNewCredential;
+
+    @FindBy(name="credSave")
+    private WebElement credentialSave;
+
+    @FindBy(id="cred-EditBtn")
+    private WebElement credEditBtn;
+
+    @FindBy(name="credDelete")
+    private WebElement credDelete;
+
+    @FindBy(id="success-message")
     private WebElement successMessage;
 
-    // buttons:
-    @FindBy(id = "addCred-btn")
-    private WebElement addCredBtn;
-
-    @FindBy(id = "cred-EditBtn")
-    private WebElement editBtn;
-
-    @FindBy(id = "cred-DeleteBtn")
-    private WebElement deleteBtn;
-
-    @FindBy(id = "cred-savechanges-btn")
-    private WebElement submitBtn;
 
 
-    // driver (Chrome):
-    private final WebDriver driver;
 
-    // constructor
     public CredentialPage(WebDriver driver) {
         this.driver = driver;
         PageFactory.initElements(driver, this);
+        this.executor = (JavascriptExecutor)this.driver;
     }
 
-    // method to fill data to add new credentials:
-    public void enterCredentialData(String url, String username, String password) {
-        // fill in data:
-        ((JavascriptExecutor) driver).executeScript("arguments[0].value='" + url + "';", this.credentialUrl);
-        ((JavascriptExecutor) driver).executeScript("arguments[0].value='" + username + "';", this.credentialUsername);
-        ((JavascriptExecutor) driver).executeScript("arguments[0].value='" + password + "';", this.credentialPassword);
+    public void setCredential(String url, String username, String password){
+        this.executor.executeScript("arguments[0].value='" + url + "';", this.credUrl);
+        this.executor.executeScript("arguments[0].value='" + username + "';", this.credUsername);
+        this.executor.executeScript("arguments[0].value='" + password + "';", this.credPassword);
     }
 
-//    // method to click on Add New Credential button:
-//    public void clickSaveChangesBtn() {
-//        // simulate click to submit:
-//        ((JavascriptExecutor) driver).executeScript("arguments[0].click();", this.submitBtn);
-//    }
-
-    // method to simulate user to click on Credentials tab:
-    public void clickCredTab() {
-        ((JavascriptExecutor) driver).executeScript("arguments[0].click();", this.credTab);
+    public String getDisplayCredentialUrl() {
+        return displayCredentialUrl.getText();
     }
 
-    // method to click on Add New Credential button:
-    public void clickAddCredBtn() {
-        ((JavascriptExecutor) driver).executeScript("arguments[0].click();", this.addCredBtn);
+    public String getCredUsername() {
+        return displayCredentialUsername.getText();
     }
 
-    // method to click on Edit button:
-    public void clickEditBtn(int pos) {
-        //List < WebElement > editButtons = driver.findElements(By.id("cred-EditBtn"));
-        ((JavascriptExecutor) driver).executeScript("arguments[0].click();", this.editBtn);
+    public void clickAddCred(){
+        this.executor.executeScript("arguments[0].click();", this.addNewCredential);
     }
 
-    // method to click on Delete button:
-    public void clickDeleteBtn() {
-        ((JavascriptExecutor) driver).executeScript("arguments[0].click();", this.deleteBtn);
+    public void clickCredTab(){
+        this.executor.executeScript("arguments[0].click();", this.credTab);
     }
 
-
-    // verify that new credential's url is created:
-    public String getUrlText(int pos) {
-        List<WebElement> urls = driver.findElements(By.id("credUrlText"));
-        return urls.get(pos-1).getAttribute("innerHTML");
+    public void clickSaveCred(){
+        this.executor.executeScript("arguments[0].click();", this.credentialSave);
     }
 
-    // verify that new credential's username is created:
-    public String getUsernameText(int pos) {
-        List<WebElement> urls = driver.findElements(By.id("credUsernameText"));
-        return urls.get(pos-1).getAttribute("innerHTML");
+    public void clickEditCred(){
+        this.executor.executeScript("arguments[0].click();", this.credEditBtn);
     }
 
-    /* Verify that new credential's password is created:
-    this should be the value of ENCRYPTED password:*/
-    public String getPasswordText(int pos) {
-        List<WebElement> urls = driver.findElements(By.id("credPasswordText"));
-        return urls.get(pos-1).getAttribute("innerHTML");
+    public void clickDeleteCred(){
+        this.executor.executeScript("arguments[0].click();", this.credDelete);
     }
 
-    // get unencrypted password:
-    public String getUnencryptedPassword() {
-        return this.credentialPassword.getAttribute("value");
+    public String getDisplayCredentialPassword() {
+        return displayCredentialPassword.getText();
     }
 
-    // method to click on Success button:
-    public boolean clickSuccessLoginButton() {
-        ((JavascriptExecutor) driver).executeScript("arguments[0].click();", successMessage);
-        return true;
+    public boolean getSuccessMessage() {
+        Boolean result=false;
+
+        if(this.successMessage.isDisplayed()){
+            result=true;
+        }
+        this.executor.executeScript("arguments[0].click();", this.successMessage);
+
+        return result;
     }
 
+    public void clearCredentialAndReplace( String url, String username, String password){
+        WebDriverWait wait = new WebDriverWait(driver, 20);
+
+        wait.until(ExpectedConditions.elementToBeClickable(By.id("credential-url"))).clear();
+        WebElement credentialUrlEdited = driver.findElement(By.id("credential-url"));
+        credentialUrlEdited.sendKeys(url);
+
+        wait.until(ExpectedConditions.elementToBeClickable(By.id("credential-username"))).clear();
+        WebElement credentialUsernameEdited = driver.findElement(By.id("credential-username"));
+        credentialUsernameEdited.sendKeys(username);
+
+        wait.until(ExpectedConditions.elementToBeClickable(By.id("credential-password"))).clear();
+        WebElement credentialpasswordEdited = driver.findElement(By.id("credential-password"));
+        credentialpasswordEdited.sendKeys(password);
+
+    }
 }

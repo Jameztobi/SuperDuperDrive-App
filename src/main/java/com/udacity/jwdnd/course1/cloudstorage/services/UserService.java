@@ -4,6 +4,7 @@ import com.udacity.jwdnd.course1.cloudstorage.Mapper.UserMapper;
 import com.udacity.jwdnd.course1.cloudstorage.model.Users;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.PostConstruct;
 import java.security.SecureRandom;
 import java.util.Base64;
 

@@ -3,7 +3,6 @@ package com.udacity.jwdnd.course1.cloudstorage;
 import com.udacity.jwdnd.course1.cloudstorage.model.Credentials;
 import com.udacity.jwdnd.course1.cloudstorage.services.CredentialService;
 import com.udacity.jwdnd.course1.cloudstorage.services.EncryptionService;
-import com.udacity.jwdnd.course1.cloudstorage.services.NoteService;
 import io.github.bonigarcia.wdm.WebDriverManager;
 import org.junit.jupiter.api.*;
 import org.openqa.selenium.WebDriver;
@@ -13,482 +12,290 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.web.server.LocalServerPort;
+import org.springframework.security.core.Authentication;
 
 import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import java.util.concurrent.TimeUnit;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class CloudStorageApplicationTests {
-
-    //random port
     @LocalServerPort
     private int port;
+    private String firstname="Oluwatobi";
+    private String lastname="James";
+    private String username="Tobi";
+    private String password="password";
+    private String url="www.google.com";
 
-    //Webdriver driver
-    private static WebDriver driver;
+    private String notetitle="Lord of the Rings";
+    private String notedescription="This is a fierce movie contain different forms of plays and excitement";
 
-    public String baseURL;
+    private String notetitleEdited="Lord of the Rings";
+    private String notedescriptionEdited="This is a fierce movie contain different forms of plays and excitement but it ended sadly";
 
-    //LOgin Details
-    String firstname = "David";
-    String lastname = "Kings";
-    String username = "dave.kgs";
-    String password = "david";
 
-    //note info
-    String notetitle = "This is my note";
-    String notedescription = "Every one needs to make a note of their regular activities on a daily basics";
+    LoginPage loginPage;
 
-    //note edited info
-    String note_edited = notetitle + " edited";
-    String noteDescription_edited = notedescription + " edited";
+    NotePage notePage;
+
+    CredentialPage credentialPage;
 
     @Autowired
     private CredentialService credentialService;
 
     @Autowired
-    private NoteService noteService;
-
     private EncryptionService encryptionService;
 
+    private WebDriver driver;
 
     @BeforeAll
     static void beforeAll() {
         WebDriverManager.chromedriver().setup();
     }
 
-    @AfterAll
-    public static void afterAll() {
-        driver.quit();
-        driver = null;
-    }
-
     @BeforeEach
     public void beforeEach() {
-        driver = new ChromeDriver();
-        baseURL = "http://localhost:" + port;
+        this.driver = new ChromeDriver();
+        driver.manage().window().maximize();
+        driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
+        loginPage = new LoginPage(driver);
+        notePage= new NotePage(driver);
+        credentialPage = new CredentialPage(driver);
+
     }
 
     @AfterEach
-    public void afterEach() throws InterruptedException {
+    public void afterEach() {
         if (this.driver != null) {
-            Thread.sleep(2000);
             driver.quit();
         }
     }
 
     @Test
-    @Order(1)
     public void getLoginPage() {
-        driver.get(baseURL + "/login");
-        assertEquals("Login", driver.getTitle());
+        driver.get("http://localhost:" + this.port + "/login");
+        Assertions.assertEquals("Login", driver.getTitle());
     }
 
     @Test
-    @Order(2)
-    public void checkForAccessByOnlyAuthorizedUsers() throws InterruptedException {
-        driver.get(baseURL + "/home");
-        assertEquals("Login", driver.getTitle());
-        Thread.sleep(2000);
+    public void testUnauthorizedUserCanOnlyAccessLoginAndSignUpPage() throws InterruptedException {
+        String username="Tobi";
+        String password="password";
 
-        driver.get(baseURL + "/signup");
+        driver.get("http://localhost:" + this.port + "/login");
+
+        LoginPage loginPage = new LoginPage(driver);
+        loginPage.setLogin(username, password);
+
+        loginPage.clickLogin();
+
+        Thread.sleep(3000);
+
+        Assertions.assertEquals("Login", driver.getTitle());
+
+        Thread.sleep(3000);
+
+        loginPage.clickSignUp();
+
+        Thread.sleep(3000);
+
         Assertions.assertEquals("Sign Up", driver.getTitle());
 
     }
 
     @Test
-    @Order(3)
-    public void checkIfUserSignUpWasSuccessful() throws InterruptedException {
-        //get the signup page
-        driver.get(baseURL + "/signup");
+    public void testSignUpNewUser() throws InterruptedException {
 
-        //Initializing the web driver
-        SignupPage signupPage = new SignupPage(driver);
+        driver.get("http://localhost:" + this.port + "/login");
+        //LoginPage loginPage = new LoginPage(driver);
+        Thread.sleep(3000);
 
-        //passing in user input
-        signupPage.signup(firstname, lastname, username, password);
+        loginPage.clickSignUp();
+        Thread.sleep(3000);
 
-        //Testing the user input
-        assertEquals(firstname, signupPage.getFirstNameField());
-        assertEquals(lastname, signupPage.getLastNameField());
-        assertEquals(username, signupPage.getUsernameField());
-        assertEquals(password, signupPage.getPasswordField());
+        SignupPage signup = new SignupPage(driver);
+        signup.setSignUp(firstname, lastname, username, password);
+        Thread.sleep(3000);
+        signup.clickSignUp();
 
-        //sleep for 2 seconds
-        Thread.sleep(2000);
+        Thread.sleep(3000);
 
-        //Click signup button
-        signupPage.clickSignUpButton();
+        signup.clickLogin();
 
-        //sleep for 2 seconds
-        Thread.sleep(2000);
-
-        //Click login in back
-        signupPage.clickLoginInBack();
-
-        //sleep for 2 seconds
-        Thread.sleep(2000);
-
-        //test if the user has been redirected to login page
-        new WebDriverWait(driver, 4).until(ExpectedConditions.titleIs("Login"));
-
-        assertEquals("Login", driver.getTitle());
+        Thread.sleep(3000);
+        Assertions.assertEquals("Login", driver.getTitle());
 
     }
 
     @Test
-    @Order(4)
-    public void checkIfUserLoginWasSuccessful() throws InterruptedException {
-        checkIfUserSignUpWasSuccessful();
+    public void testNewUserLogIn() throws InterruptedException {
+        testSignUpNewUser();
+        Thread.sleep(3000);
+        loginPage.setLogin(username, password);
 
-        // get the login page
-        driver.get(baseURL + "/login");
+        Thread.sleep(3000);
 
-        //Initializing login page with the driver
-        LoginPage loginPage = new LoginPage(driver);
+        loginPage.clickLogin();
 
-        //get the users input for login
-        loginPage.loginDetails(username, password);
+        Thread.sleep(3000);
 
-        //Test
-        assertEquals(username, loginPage.getUsernameField());
-        assertEquals(password, loginPage.getPasswordField());
-
-        //sleep for 2 seconds
-        Thread.sleep(2000);
-
-        //Click login button
-        loginPage.clickLoginButton();
-
-        //check if the home page was served
-        assertEquals("Home", driver.getTitle());
+        Assertions.assertEquals("Home", driver.getTitle());
 
     }
 
-
     @Test
-    @Order(5)
-    public void checkIfUserCanAccessHomePageAfterLogOut()
-            throws InterruptedException {
+    public void testNewUserLogInAndLogout() throws InterruptedException {
+        testSignUpNewUser();
+        Thread.sleep(3000);
+        loginPage.setLogin(username, password);
 
-        checkIfUserSignUpWasSuccessful();
+        Thread.sleep(3000);
 
-        //Get the login Page
-        driver.get(baseURL + "/login");
+        loginPage.clickLogin();
 
-        //Initializing the web driver for the login page
-        LoginPage loginPage = new LoginPage(driver);
+        Thread.sleep(3000);
 
-        //get the users input for login
-        loginPage.loginDetails(username, password);
+        Assertions.assertEquals("Home", driver.getTitle());
 
-        //Test
-        assertEquals(username, loginPage.getUsernameField());
-        assertEquals(password, loginPage.getPasswordField());
-
-        //sleep for 2 seconds
-        Thread.sleep(2000);
-
-        //Click login button
-        loginPage.clickLoginButton();
-
-        //Check if the user is in the home page
-        assertEquals("Home", driver.getTitle());
-
-        //sleep for 2 seconds
-        Thread.sleep(2000);
-
-        //Initializing the web driver for the login page for home page
+        Thread.sleep(3000);
         HomePage homePage = new HomePage(driver);
+        Thread.sleep(3000);
 
-        //to login out of the home page
         homePage.clickLogoutButton();
+        Thread.sleep(3000);
 
-        //Wait ustil the login page is served
-        new WebDriverWait(driver, 4).until(ExpectedConditions.titleIs("Login"));
-
-        //To confirm that the login Page was been served
-        assertEquals("Login", driver.getTitle());
-
-        //sleep for 2 seconds
-        Thread.sleep(2000);
-
-        //Try accessing home page after logging out
-        driver.get(baseURL + "/home");
-
-        //To check if the user is still on the login page
-        assertEquals("Login", driver.getTitle());
-    }
-
-
-    @Test
-    @Order(6)
-    public void createNoteAndViewNote() throws InterruptedException {
-        checkIfUserLoginWasSuccessful();
-
-        //sleep for 2 seconds
-        Thread.sleep(2000);
-
-        //Initializing the web driver for note page
-        NotePage notesPage = new NotePage(driver);
-
-        // Click on the notes tab:
-        notesPage.clickNoteTab();
-
-        Thread.sleep(2000);
-
-        // simulate user to click "Add/Edit a Note" button to add new note:
-        notesPage.clickAddNoteBtn();
-
-        //sleep for 2 seconds
-        Thread.sleep(2000);
-
-        // stimulating user input
-        notesPage.addNote(notetitle, notedescription);
-
-        //sleep for 2 seconds
-        Thread.sleep(2000);
-
-        // Click save button
-        notesPage.clickSaveNoteBtn();
-
-        //sleep for 2 seconds
-        Thread.sleep(2000);
-
-        //click on the success continue link
-        notesPage.clickSuccessLoginBtn();
-
-        Thread.sleep(2000);
-
-
-        // Click Notes tab:
-        notesPage.clickNoteTab();
-
-        Thread.sleep(2000);
-
-        assertEquals(notetitle, notesPage.getNoteTitleText());
-        assertEquals(notedescription, notesPage.getNoteDescriptionText());
-
-        Thread.sleep(2000);
-
-    }
-
-
-    @Test
-    @Order(7)
-    public void editCreatedNoteAndViewNote() throws InterruptedException {
-
-        createNoteAndViewNote();
-
-        Thread.sleep(2000);
-
-        //Initializing the web driver for note page
-        NotePage notesPage = new NotePage(driver);
-
-        // Click Notes tab:
-        notesPage.clickNoteTab();
-
-        Thread.sleep(2000);
-
-        // simulating user clicking the edit button
-        notesPage.clickEditBtn();
-
-        Thread.sleep(2000);
-
-        // simulate user to editing note with new data:
-        notesPage.editNote(notetitle + " Edit", notedescription + " Edit");
-
-        Thread.sleep(2000);
-
-        // Click save button :
-        notesPage.clickSaveEditNoteBtn();
-
-        Thread.sleep(2000);
-
-        notesPage.clickSuccessLoginBtn();
-
-        Thread.sleep(2000);
-
-        // user click Notes tab:
-        notesPage.clickNoteTab();
-
-        Thread.sleep(2000);
-
-        assertEquals(notetitle + " Edit", notesPage.getNoteTitleText());
-        assertEquals(notedescription + " Edit", notesPage.getNoteDescriptionText());
-
-
-    }
-
-
-    @Test
-    @Order(8)
-    public void checkIfUserCanDeleteNoteAndView() throws InterruptedException {
-        createNoteAndViewNote();
-        //sleep for 2 seconds
-        Thread.sleep(2000);
-
-        //Initializing the web driver for note page
-        NotePage notesPage = new NotePage(driver);
-
-        // Click Notes tab:
-        notesPage.clickNoteTab();
-
-        Thread.sleep(2000);
-
-        // simulating the user clicking on the delete button
-        notesPage.clickDeleteBtn();
-
-        Thread.sleep(2000);
-
-        //check if edit successful message is being displayed
-        assertTrue(notesPage.clickSuccessLoginBtn());
-
-    }
-
-
-    @Test
-    @Order(9)
-    public void createCredentialAndViewCredential() throws InterruptedException {
-
-        checkIfUserLoginWasSuccessful();
-
-        //sleep for 2 seconds
-        Thread.sleep(2000);
-
-        // initiating the encryption service class
-        encryptionService = new EncryptionService();
-
-        //Initializing the web driver for credentialsPage
-        CredentialPage credentialsPage = new CredentialPage(driver);
-
-
-        // simulating a user clicking on the credential tab
-        credentialsPage.clickCredTab();
-
-        //sleep for 2 seconds
-        Thread.sleep(2000);
-
-        int i = 1;
-
-        // simulating a user clicking on the add credential button
-        credentialsPage.clickAddCredBtn();
-        Thread.sleep(2000);
-
-        credentialsPage.enterCredentialData("cred " + i, "cred" + i, "cred" + i);
-        Thread.sleep(2000);
-
-        credentialsPage.clickAddCredBtn();
-        Thread.sleep(2000);
-
-        List<Credentials> credential = this.credentialService.getCredential(i);
-
-        assertTrue(credentialsPage.clickSuccessLoginButton());
-        Thread.sleep(2000);
-        new WebDriverWait(driver, 4).until(ExpectedConditions.titleIs("Home"));
-        Thread.sleep(2000);
-
-        // simulating a user clicking on the credential tab
-        credentialsPage.clickCredTab();
-        Thread.sleep(2000);
-
-
-        assertEquals("cred " + i, credentialsPage.getUrlText(i));
-        assertEquals("cred" + i, credentialsPage.getUsernameText(i));
-        assertEquals(this.encryptionService.encryptValue("cred" + i, credential.get(0).getKey()), credentialsPage.getPasswordText(i));
-        
-
-    }
-
-    @Test
-    @Order(10)
-    public void editCreatedCredentialAndViewEditedCredential() throws InterruptedException {
-
-        createCredentialAndViewCredential();
-
-         //sleep for a 2 seconds
-        Thread.sleep(2000);
-
-        // initiating the encryption service class
-        encryptionService = new EncryptionService();
-
-        //Initializing the web driver for credentialsPage
-        CredentialPage credentialsPage = new CredentialPage(driver);
-
-        // simulating a user clicking on the credential tab
-        credentialsPage.clickCredTab();
-
-        //sleep for a 2 seconds
-        Thread.sleep(2000);
-
-
-        int i = 1;
-
-        // simulate user to click on Add new credential button:
-        credentialsPage.clickEditBtn(i);
-
-        //sleep for a 2 seconds
-        Thread.sleep(2000);
-
-
-        credentialsPage.enterCredentialData("cred " + i + " edit", "cred" + i, "cred" + i);
-        Thread.sleep(2000);
-
-        credentialsPage.clickAddCredBtn();
-
-        Thread.sleep(2000);
-
-        credentialsPage.clickSuccessLoginButton();
-        Thread.sleep(2000);
-
-
-        credentialsPage.clickCredTab();
-        Thread.sleep(2000);
-
-        // initialize Credential object
-        List<Credentials> credential = this.credentialService.getCredential(i);
-
-        new WebDriverWait(driver, 4).until(ExpectedConditions.titleIs("Home"));
-
-        assertEquals("cred " + i + " edit", credentialsPage.getUrlText(i));
-        assertEquals("cred" + i, credentialsPage.getUsernameText(i));
-        assertEquals(this.encryptionService.encryptValue("cred" + i, credential.get(0).getKey()), credentialsPage.getPasswordText(i));
+        Assertions.assertEquals("Login", driver.getTitle());
 
 
     }
 
     @Test
-    @Order(11)
-    public void deleteCredentialAndViewDisplay() throws InterruptedException {
-        createCredentialAndViewCredential();
+    public void testHomePageIsNotAvailableAfterLogout() throws InterruptedException {
+        testNewUserLogInAndLogout();
+        Thread.sleep(3000);
+        driver.get("http://localhost:" + this.port + "/home");
 
+        Thread.sleep(3000);
+        Assertions.assertEquals("Login", driver.getTitle());
+    }
+
+    @Test
+    public void testNoteCreationAndVerifyNote() throws InterruptedException {
+        testNewUserLogIn();
+        Thread.sleep(3000);
+        notePage.clickNoteTab();
+        Thread.sleep(3000);
+        notePage.clickAddNote();
+        Thread.sleep(3000);
+        notePage.setNote(notetitle, notedescription);
         Thread.sleep(2000);
-
-        // initiating the encryption service class
-        encryptionService = new EncryptionService();
-
-        //Initializing the web driver for credentialsPage
-        CredentialPage credentialsPage = new CredentialPage(driver);
-
-
-        // simulating a user clicking on the credential tab
-        credentialsPage.clickCredTab();
-
+        notePage.clickSave();
         Thread.sleep(2000);
-
-        int i=1;
-
-        List<Credentials> credential = this.credentialService.getCredential(i);
-
-        credentialsPage.clickDeleteBtn();
-
+        Assertions.assertTrue(notePage.getSuccessMessage());
         Thread.sleep(2000);
-        
-        assertTrue(credentialsPage.clickSuccessLoginButton());
+        notePage.clickNoteTab();
+        Thread.sleep(2000);
+        Assertions.assertEquals(notetitle, notePage.getDisplayNameTitle());
+        Assertions.assertEquals(notedescription, notePage.getDisplayNameDescription());
+        Thread.sleep(2000);
+    }
+
+    @Test
+    public void testEditNoteAndVerifyChanges() throws InterruptedException {
+        testNoteCreationAndVerifyNote();
+        notePage.clickEdit();
+        Thread.sleep(2000);
+        notePage.clearNoteAndReplace(notetitleEdited, notedescriptionEdited);
+        Thread.sleep(3000);
+        notePage.clickSave();
+        Thread.sleep(3000);
+        Assertions.assertTrue(notePage.getSuccessMessage());
+        Thread.sleep(3000);
+        notePage.clickNoteTab();
+        Thread.sleep(3000);
+        Assertions.assertEquals(this.notetitleEdited, notePage.getDisplayNameTitle());
+        Assertions.assertEquals(this.notedescriptionEdited, notePage.getDisplayNameDescription());
+        Thread.sleep(3000);
+
+    }
+
+    @Test
+    public void testDeleteNoteAndVerifyDisplay() throws InterruptedException {
+        testNoteCreationAndVerifyNote();
+        Thread.sleep(2000);
+        notePage.clickDelete();
+        Thread.sleep(2000);
+        Assertions.assertTrue(notePage.getSuccessMessage());
+        Thread.sleep(3000);
+        notePage.clickNoteTab();
+        Thread.sleep(3000);
+        Assertions.assertEquals("", notePage.getDisplayNameTitle());
+        Assertions.assertEquals("", notePage.getDisplayNameDescription());
+        Thread.sleep(3000);
+
+    }
+
+    @Test
+    public void testSetCredentialVerifyDetailsAndEncryption() throws InterruptedException {
+        testNewUserLogIn();
+        Thread.sleep(3000);
+        credentialPage.clickCredTab();
+        Thread.sleep(2000);
+        credentialPage.clickAddCred();
+        Thread.sleep(2000);
+        credentialPage.setCredential(url, username, password);
+        Thread.sleep(2000);
+        credentialPage.clickSaveCred();
+        Thread.sleep(2000);
+        Assertions.assertTrue(credentialPage.getSuccessMessage());
+        Thread.sleep(2000);
+        credentialPage.clickCredTab();
+        Thread.sleep(2000);
+        Assertions.assertEquals(url, credentialPage.getDisplayCredentialUrl());
+        Assertions.assertEquals(username, credentialPage.getCredUsername());
+        List<Credentials> credential = credentialService.getCredential(1);
+        Assertions.assertEquals(credentialPage.getDisplayCredentialPassword(), encryptionService.encryptValue(password, credential.get(0).getKey()));
+
+    }
+
+    @Test
+    public void testCredentialEditAndViewDetails() throws InterruptedException {
+        testSetCredentialVerifyDetailsAndEncryption();
+        Thread.sleep(2000);
+        credentialPage.clickEditCred();
+        Thread.sleep(2000);
+        credentialPage.clearCredentialAndReplace("mylink.net", "mybatis", "helper");
+        Thread.sleep(2000);
+        credentialPage.clickSaveCred();
+        Thread.sleep(2000);
+        Assertions.assertTrue(credentialPage.getSuccessMessage());
+        Thread.sleep(2000);
+        credentialPage.clickCredTab();
+        Thread.sleep(2000);
+        Assertions.assertEquals("mylink.net", credentialPage.getDisplayCredentialUrl());
+        Assertions.assertEquals("mybatis", credentialPage.getCredUsername());
+        List<Credentials> credential = credentialService.getCredential(1);
+        Assertions.assertEquals(credentialPage.getDisplayCredentialPassword(), encryptionService.encryptValue("helper", credential.get(0).getKey()));
+
+
 
 
     }
+
+
+    @Test
+    public void testDeleteCredential() throws InterruptedException {
+        testSetCredentialVerifyDetailsAndEncryption();
+        Thread.sleep(2000);
+        credentialPage.clickDeleteCred();
+        Thread.sleep(2000);
+        Assertions.assertTrue(credentialPage.getSuccessMessage());
+
+    }
+
+
+
+
+
 
 }

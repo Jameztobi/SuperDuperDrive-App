@@ -10,16 +10,16 @@ public class HomePage {
     // logout:
     @FindBy(css="#logout-btn")
     private WebElement logoutButton;
-
     private final WebDriver driver;
+    private JavascriptExecutor executor;
 
     public HomePage(WebDriver webDriver) {
-
         this.driver = webDriver;
         PageFactory.initElements(webDriver, this);
+        this.executor = (JavascriptExecutor)this.driver;
     }
 
     public void clickLogoutButton(){
-        ((JavascriptExecutor) driver).executeScript("arguments[0].click();", logoutButton);
+        this.executor.executeScript("arguments[0].click();", logoutButton);
     }
 }

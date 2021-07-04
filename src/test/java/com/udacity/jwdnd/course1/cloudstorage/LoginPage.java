@@ -6,52 +6,52 @@ import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 
 public class LoginPage {
-    @FindBy(css="#inputUsername")
-    private WebElement usernameField;
+   //driver
+   public final WebDriver driver;
 
-    @FindBy(css="#inputPassword")
-    private WebElement passwordField;
+   JavascriptExecutor executor;
 
-    @FindBy(css="#login-btn")
-    private WebElement loginButton;
+   //field
+   @FindBy(name="invalid-username")
+   private WebElement invalidUsername;
 
-    @FindBy(css = "#error-msg")
-    private WebElement errorMessage;
+   @FindBy(name="logged-out")
+   private WebElement logged;
 
-    @FindBy(css = "#logout-msg")
-    private WebElement logoutMessage;
+   @FindBy(name="username")
+   private WebElement username;
 
-    // driver:
-    private final WebDriver driver;
+   @FindBy(name="password")
+   private WebElement password;
 
-    public LoginPage(WebDriver webDriver) {
-        this.driver=webDriver;
-        PageFactory.initElements(webDriver, this);
-    }
+   //links and buttons
+   @FindBy(name="login")
+   private WebElement login;
 
-    public void loginDetails(String username, String password) {
-        this.usernameField.sendKeys(username);
-        this.passwordField.sendKeys(password);
-    }
+   @FindBy(name="signUp")
+   private WebElement signUpBtn;
 
-    public String getUsernameField() {
-        return usernameField.getAttribute("value");
-    }
+   public LoginPage(WebDriver driver){
+      this.driver=driver;
+      PageFactory.initElements(driver, this);
+      this.executor = (JavascriptExecutor)this.driver;
+   }
 
-    public String getPasswordField() {
-        return passwordField.getAttribute("value");
-    }
+   public void setLogin( String username, String password){
+      this.executor.executeScript("arguments[0].value='" + username + "';", this.username);
+      this.executor.executeScript("arguments[0].value='" + password + "';", this.password);
+   }
 
-    public void clickLoginButton(){
-        ((JavascriptExecutor) driver).executeScript("arguments[0].click();", this.loginButton);
-    }
+   //clicks
+   public void clickLogin(){
+      this.executor.executeScript("arguments[0].click();", login);
+   }
 
-    public boolean getErrorMessage() {
-        return this.errorMessage.isDisplayed();
-    }
+   public void clickSignUp(){
+      this.executor.executeScript("arguments[0].click();", signUpBtn);
+   }
 
-    public boolean getLogoutMessage() {
-        return this.logoutMessage.isDisplayed();
-    }
+
+
 
 }

@@ -1,134 +1,112 @@
 package com.udacity.jwdnd.course1.cloudstorage;
 
+import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
+
+import java.time.Instant;
 
 public class NotePage {
-    @FindBy(css=".logout-button")
-    private WebElement logoutButton;
-
-    @FindBy(id = "nav-notes-tab")
-    private WebElement noteTab;
-
-    // title field:
-    @FindBy(id = "note-title")
-    private WebElement noteTitle;
-
-    @FindBy(id = "note-title")
-    private WebElement noteTitleEdit;
-
-    @FindBy(id = "noteTitleText")
-    private WebElement noteTitleText;
-
-    @FindBy(id = "note-description")
-    private WebElement noteDescription;
-
-    @FindBy(id = "note-description")
-    private WebElement noteDescriptionEdit;
-
-    @FindBy(id = "noteDescriptionText")
-    private WebElement noteDescriptionText;
-
-    // buttons:
-    @FindBy(id = "note-save-button")
-    private WebElement saveNoteButton;
-
-    @FindBy(id = "add-note-btn")
-    private WebElement addNoteBtn;
-
-    @FindBy(id = "note-editBtn")
-    private WebElement editNoteBtn;
-
-    @FindBy(id = "note-savechanges-btn")
-    private WebElement saveEditNoteButton;
-
-    @FindBy(id = "deleteNote")
-    private WebElement deleteNoteBtn;
-
-    @FindBy(id = "success-message")
-    private WebElement successMessage;
-
-    @FindBy(id = "success-message2")
-    private WebElement successMessage2;
-
     //driver
     private final WebDriver driver;
+    private  JavascriptExecutor executor;
 
-    //constructor
+    //Fields
+    @FindBy(name="notetitle")
+    private WebElement noteTitle;
+
+    @FindBy(name="notedescription")
+    private WebElement noteDescription;
+
+
+    //Button
+    @FindBy(id="nav-notes-tab")
+    private WebElement note_tab;
+
+    @FindBy(name="addNewNote")
+    private WebElement addNewNote;
+
+    @FindBy(name="noteSave")
+    private WebElement noteSave;
+
+    @FindBy(name="noteEditBtn")
+    private WebElement noteEditBtn;
+
+    @FindBy(name="noteDelete")
+    private WebElement noteDelete;
+
+    @FindBy(id="success-message")
+    private WebElement successMessage;
+
+
     public NotePage(WebDriver driver) {
         this.driver = driver;
-        PageFactory.initElements(driver, this);
+        PageFactory.initElements(this.driver,  this );
+        this.executor = (JavascriptExecutor)this.driver;
     }
 
-    // method to add a new note:
-    public void addNote(String title, String description) {
-        // fill in data:
-        ((JavascriptExecutor) driver).executeScript("arguments[0].value='" + title + "';", this.noteTitle);
-        ((JavascriptExecutor) driver).executeScript("arguments[0].value='" + description + "';", this.noteDescription);
+    public void setNote(String notetitle, String notedescription){
+        this.executor.executeScript("arguments[0].value='" + notetitle + "';", this.noteTitle);
+        this.executor.executeScript("arguments[0].value='" + notedescription + "';", this.noteDescription);
     }
 
-    // method to edit an existing note:
-    public void editNote(String title, String description) {
-        // fill in data:
-        ((JavascriptExecutor) driver).executeScript("arguments[0].value='" + title + "';", this.noteTitleEdit);
-        ((JavascriptExecutor) driver).executeScript("arguments[0].value='" + description + "';", this.noteDescriptionEdit);
+
+    public String getDisplayNameTitle() {
+        return this.noteTitle.getText();
     }
 
-    public void clickNoteTab() {
-        ((JavascriptExecutor) driver).executeScript("arguments[0].click();", noteTab);
+    public String getDisplayNameDescription() {
+        return this.noteDescription.getText();
     }
 
-    // method to click on Add button:
-    public void clickAddNoteBtn() {
-        ((JavascriptExecutor) driver).executeScript("arguments[0].click();", this.addNoteBtn);
+
+    public void clickAddNote(){
+        this.executor.executeScript("arguments[0].click();", this.addNewNote);
     }
 
-    // method to click to save note button:
-    public void clickSaveNoteBtn() {
-        ((JavascriptExecutor) driver).executeScript("arguments[0].click();", this.saveNoteButton);
+    public void clickNoteTab(){
+        this.executor.executeScript("arguments[0].click();", this.note_tab);
     }
 
-    // method to click Edit button:
-    public void clickEditBtn() {
-        ((JavascriptExecutor) driver).executeScript("arguments[0].click();", this.editNoteBtn);
+    public void clickSave(){
+        this.executor.executeScript("arguments[0].click();", this.noteSave);
     }
 
-    // method to click to save edit note button:
-    public void clickSaveEditNoteBtn() {
-        ((JavascriptExecutor) driver).executeScript("arguments[0].click();", this.saveNoteButton);
+    public void clickEdit(){
+        this.executor.executeScript("arguments[0].click();", this.noteEditBtn);
     }
 
-    // method to click on Delete button:
-    public void clickDeleteBtn() {
-        ((JavascriptExecutor) driver).executeScript("arguments[0].click();", this.deleteNoteBtn);
+    public void clickDelete(){
+        this.executor.executeScript("arguments[0].click();", this.noteDelete);
     }
 
-    // method to click on Success button:
-    public boolean clickSuccessLoginBtn() {
-        ((JavascriptExecutor) driver).executeScript("arguments[0].click();", successMessage);
-        return true;
-    }
-    // verify that new note title is created:
-    public String getNoteTitleText() {
-        return noteTitleText.getAttribute("innerHTML");
+    public boolean getSuccessMessage() {
+        Boolean result=false;
+
+        if(this.successMessage.isDisplayed()){
+            result=true;
+        }
+        this.executor.executeScript("arguments[0].click();", this.successMessage);
+
+        return result;
     }
 
-    // verify that new note description is created:
-    public String getNoteDescriptionText() {
-        return noteDescriptionText.getAttribute("innerHTML");
-    }
+    public void clearNoteAndReplace( String notetitle_edited, String notedescription_edited){
+        WebDriverWait wait = new WebDriverWait(driver, 20);
 
-    // simulate user to click logout button:
-    public void logout() {
-        ((JavascriptExecutor) driver).executeScript("arguments[0].click();", this.logoutButton);
-    }
+        wait.until(ExpectedConditions.elementToBeClickable(By.id("note-title"))).clear();
+        WebElement noteTitle_edited = driver.findElement(By.id("note-title"));
+        noteTitle_edited.sendKeys(notetitle_edited);
 
-    //Get success message
-    public boolean getSuccessMessage2() {
-        return this.successMessage.isDisplayed();
+        wait.until(ExpectedConditions.elementToBeClickable(By.id("note-description"))).clear();
+        WebElement noteDescription_edited = driver.findElement(By.id("note-description"));
+        noteDescription_edited.sendKeys(notedescription_edited);
+
     }
 
 

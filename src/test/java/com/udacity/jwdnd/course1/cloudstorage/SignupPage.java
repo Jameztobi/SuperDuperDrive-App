@@ -7,79 +7,47 @@ import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 
 public class SignupPage {
-    @FindBy(css = "#inputFirstName")
-    private WebElement firstNameField;
+    public final WebDriver driver;
 
-    @FindBy(css = "#inputLastName")
-    private WebElement lastNameField;
+    JavascriptExecutor executor;
 
-    @FindBy(css = "#inputUsername")
-    private WebElement usernameField;
+    @FindBy(name="firstName")
+    public WebElement firstname;
+    @FindBy(name="lastName")
+    public WebElement lastname;
+    @FindBy(name="username")
+    public WebElement username;
+    @FindBy(name="password")
+    public WebElement password;
 
-    @FindBy(css = "#inputPassword")
-    private WebElement passwordField;
+    //clicks
+    @FindBy(name="sign-up")
+    public WebElement signUp;
 
-    @FindBy(css = "#submitButton")
-    private WebElement submitButton;
+    @FindBy(name="login-redirect")
+    public WebElement login;
 
-    @FindBy(css = "#success-msg")
-    private WebElement successMessage;
 
-    @FindBy(css = "#error-msg")
-    private WebElement errorMessage;
+    public SignupPage(WebDriver driver) {
+        this.driver = driver;
+        PageFactory.initElements(driver, this);
+        this.executor= (JavascriptExecutor)this.driver;
 
-    @FindBy(css = "#login-back")
-    private WebElement loginInButton;
-
-    private final WebDriver driver;
-
-    public SignupPage(WebDriver webDriver) {
-        this.driver=webDriver;
-        PageFactory.initElements(webDriver, this);
     }
 
-    public void signup(String firstName, String lastName, String username, String password) {
-        this.firstNameField.sendKeys(firstName);
-        this.lastNameField.sendKeys(lastName);
-        this.usernameField.sendKeys(username);
-        this.passwordField.sendKeys(password);
+    public void setSignUp(String firstname, String lastname, String username, String password){
+        this.executor.executeScript("arguments[0].value='" + firstname + "';", this.firstname);
+        this.executor.executeScript("arguments[0].value='" + lastname + "';", this.lastname);
+        this.executor.executeScript("arguments[0].value='" + username + "';", this.username);
+        this.executor.executeScript("arguments[0].value='" + password + "';", this.password);
     }
 
-    public String getFirstNameField(){
-        return firstNameField.getAttribute("value");
+    public void clickLogin(){
+        this.executor.executeScript("arguments[0].click();", this.login);
     }
 
-    public String getLastNameField(){
-        return lastNameField.getAttribute("value");
+    public void clickSignUp(){
+        this.executor.executeScript("arguments[0].click();", this.signUp);
     }
-
-    public String getUsernameField() {
-        return usernameField.getAttribute("value");
-    }
-
-    public String getPasswordField() {
-        return passwordField.getAttribute("value");
-    }
-
-    public WebElement getSubmitButton() {
-        return submitButton;
-    }
-
-    public void clickSignUpButton(){
-        ((JavascriptExecutor) driver).executeScript("arguments[0].click();", submitButton );
-    }
-
-    public void clickLoginInBack(){
-        ((JavascriptExecutor) driver).executeScript("arguments[0].click();", loginInButton );
-    }
-
-    public boolean getSuccessMessage() {
-        return this.successMessage.isDisplayed();
-    }
-
-    public boolean getErrorMessage() {
-        return this.errorMessage.isDisplayed();
-    }
-
 
 }

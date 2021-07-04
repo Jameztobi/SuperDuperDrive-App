@@ -11,7 +11,7 @@
     <body class="p-3 mb-2 bg-light text-black">
         <div class="container justify-content-center w-50 p-3" style="background-color: #eeeeee; margin-top: 5em;">
             <div class="form-group">
-                <label><a th:href="@{/login}" id="login-back">Back to Login</a></label>
+                <label><a th:href="@{/login}" id="login-back" name="login-redirect">Back to Login</a></label>
             </div>
 
             <h1 class="display-5">Sign Up</h1>
@@ -43,7 +43,7 @@
                         <input type="password" name="password" class="form-control" id="inputPassword" placeholder="Enter Password" maxlength="20" required>
                     </div>
                 </div>
-                <button type="submit" class="btn btn-primary" id="submitButton">Sign Up</button>
+                <button type="submit" class="btn btn-primary" name="sign-up" id="submitButton">Sign Up</button>
             </form>
         </div>
     </body>
