@@ -35,9 +35,13 @@ public class FileService {
 
     }
 
-//    public boolean isFileNameAvailable(String filename, Integer userid) {
-//        return fileMapper.checkFile(filename, userid) == null;
-//    }
+    public boolean getFileDuplicates(String filename, Integer userid) {
+        if(fileMapper.checkFile(filename, userid)==null){
+            return false;
+        }
+
+       return true;
+    }
 
     public List<Files> getFile(Integer userid){
         return fileMapper.getUserFile(userid);

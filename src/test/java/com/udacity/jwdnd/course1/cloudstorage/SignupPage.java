@@ -24,8 +24,6 @@ public class SignupPage {
     @FindBy(name="sign-up")
     public WebElement signUp;
 
-    @FindBy(name="login-redirect")
-    public WebElement login;
 
 
     public SignupPage(WebDriver driver) {
@@ -42,9 +40,6 @@ public class SignupPage {
         this.executor.executeScript("arguments[0].value='" + password + "';", this.password);
     }
 
-    public void clickLogin(){
-        this.executor.executeScript("arguments[0].click();", this.login);
-    }
 
     public void clickSignUp(){
         this.executor.executeScript("arguments[0].click();", this.signUp);

@@ -15,6 +15,9 @@ public interface CredentialMapper {
     @Select("SELECT * FROM CREDENTIALS WHERE  userid = #{userid}")
     List<Credentials> getUserCredentials(Integer userid);
 
+    @Select("SELECT key FROM CREDENTIALS WHERE  userid = #{userid} AND credentialid = #{credentialid}")
+    String getUserDecryptedKey(Integer userid, Integer credentialid);
+
     @Update("UPDATE CREDENTIALS SET username = #{username}, password=#{password}, key=#{key}, url=#{url} WHERE credentialid = #{credentialid} AND userid=#{userid}")
     void update(String username, String password, String key, String url, Integer credentialid, Integer userid);
 

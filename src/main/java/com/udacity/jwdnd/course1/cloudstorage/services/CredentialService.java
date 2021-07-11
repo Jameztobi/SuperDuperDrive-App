@@ -48,6 +48,13 @@ public class CredentialService {
         credentialMapper.update(credentialForm.getUsername(), credentialForm.getPassword(), credentialForm.getKey(),  credentialForm.getUrl(), credentialForm.getCredentialid(), credentialForm.getUserid());
     }
 
+    public String decryptPassword(Credentials credential){
+
+         String passwordValue= encryptionService.decryptValue(credentialMapper.getUserDecryptedKey(credential.getUserid(), credential.getCredentialid()), credential.getPassword());
+
+        return passwordValue;
+    }
+
     public void deleteCredential(Integer credid, Integer userid){
         credentialMapper.delete(credid, userid);
     };

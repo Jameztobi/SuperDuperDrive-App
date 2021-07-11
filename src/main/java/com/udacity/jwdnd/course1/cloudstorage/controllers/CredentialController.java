@@ -1,14 +1,20 @@
 package com.udacity.jwdnd.course1.cloudstorage.controllers;
 
 import com.udacity.jwdnd.course1.cloudstorage.model.CredentialForm;
+import com.udacity.jwdnd.course1.cloudstorage.model.Credentials;
 import com.udacity.jwdnd.course1.cloudstorage.model.Users;
 import com.udacity.jwdnd.course1.cloudstorage.services.CredentialService;
 import com.udacity.jwdnd.course1.cloudstorage.services.EncryptionService;
 import com.udacity.jwdnd.course1.cloudstorage.services.UserService;
+import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 
 @Controller
@@ -20,7 +26,7 @@ public class CredentialController {
     private String errorMessage;
     private String successMessage;
 
-    public CredentialController(CredentialService credentialService, UserService userService, EncryptionService encryptionService) {
+    public CredentialController(CredentialService credentialService, UserService userService) {
         this.credentialService = credentialService;
         this.encryptionService=encryptionService;
         this.userService = userService;
@@ -44,6 +50,7 @@ public class CredentialController {
             successMessage="You have successfully updated your credentials";
         }
 
+
         if(this.errorMessage!=null){
             model.addAttribute("errorMessage", errorMessage);
             return "result";
@@ -61,8 +68,5 @@ public class CredentialController {
         model.addAttribute("successMessage", successMessage);
         return "result";
     }
-
-
-
 
 }

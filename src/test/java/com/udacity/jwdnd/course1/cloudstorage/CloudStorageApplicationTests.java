@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class CloudStorageApplicationTests {
     @LocalServerPort
     private int port;
@@ -72,66 +73,47 @@ class CloudStorageApplicationTests {
     }
 
     @Test
+    @Order(1)
     public void getLoginPage() {
         driver.get("http://localhost:" + this.port + "/login");
         Assertions.assertEquals("Login", driver.getTitle());
     }
 
     @Test
+    @Order(2)
     public void testUnauthorizedUserCanOnlyAccessLoginAndSignUpPage() throws InterruptedException {
         String username="Tobi";
         String password="password";
 
-        driver.get("http://localhost:" + this.port + "/login");
-
-        LoginPage loginPage = new LoginPage(driver);
-        loginPage.setLogin(username, password);
-
-        loginPage.clickLogin();
-
-        Thread.sleep(3000);
-
+        driver.get("http://localhost:" + this.port + "/home");
         Assertions.assertEquals("Login", driver.getTitle());
 
-        Thread.sleep(3000);
 
-        loginPage.clickSignUp();
-
-        Thread.sleep(3000);
-
-        Assertions.assertEquals("Sign Up", driver.getTitle());
 
     }
 
     @Test
+    @Order(3)
     public void testSignUpNewUser() throws InterruptedException {
 
-        driver.get("http://localhost:" + this.port + "/login");
-        //LoginPage loginPage = new LoginPage(driver);
+        getLoginPage();
         Thread.sleep(3000);
-
         loginPage.clickSignUp();
         Thread.sleep(3000);
-
         SignupPage signup = new SignupPage(driver);
-        signup.setSignUp(firstname, lastname, username, password);
-        Thread.sleep(3000);
+        signup.setSignUp("white", "clinton", "mr", "day");
+        Thread.sleep(2000);
         signup.clickSignUp();
-
-        Thread.sleep(3000);
-
-        signup.clickLogin();
-
-        Thread.sleep(3000);
+        Thread.sleep(2000);
         Assertions.assertEquals("Login", driver.getTitle());
 
     }
 
     @Test
+    @Order(4)
     public void testNewUserLogIn() throws InterruptedException {
-        testSignUpNewUser();
-        Thread.sleep(3000);
-        loginPage.setLogin(username, password);
+        getLoginPage();
+        loginPage.setLogin("mr", "day");
 
         Thread.sleep(3000);
 
@@ -144,19 +126,9 @@ class CloudStorageApplicationTests {
     }
 
     @Test
+    @Order(5)
     public void testNewUserLogInAndLogout() throws InterruptedException {
-        testSignUpNewUser();
-        Thread.sleep(3000);
-        loginPage.setLogin(username, password);
-
-        Thread.sleep(3000);
-
-        loginPage.clickLogin();
-
-        Thread.sleep(3000);
-
-        Assertions.assertEquals("Home", driver.getTitle());
-
+        testNewUserLogIn();
         Thread.sleep(3000);
         HomePage homePage = new HomePage(driver);
         Thread.sleep(3000);
@@ -170,6 +142,7 @@ class CloudStorageApplicationTests {
     }
 
     @Test
+    @Order(6)
     public void testHomePageIsNotAvailableAfterLogout() throws InterruptedException {
         testNewUserLogInAndLogout();
         Thread.sleep(3000);
@@ -179,7 +152,9 @@ class CloudStorageApplicationTests {
         Assertions.assertEquals("Login", driver.getTitle());
     }
 
+
     @Test
+    @Order(7)
     public void testNoteCreationAndVerifyNote() throws InterruptedException {
         testNewUserLogIn();
         Thread.sleep(3000);
@@ -200,9 +175,14 @@ class CloudStorageApplicationTests {
         Thread.sleep(2000);
     }
 
+
     @Test
+    @Order(8)
     public void testEditNoteAndVerifyChanges() throws InterruptedException {
-        testNoteCreationAndVerifyNote();
+        testNewUserLogIn();
+        Thread.sleep(3000);
+        notePage.clickNoteTab();
+        Thread.sleep(3000);
         notePage.clickEdit();
         Thread.sleep(2000);
         notePage.clearNoteAndReplace(notetitleEdited, notedescriptionEdited);
@@ -219,10 +199,14 @@ class CloudStorageApplicationTests {
 
     }
 
+
     @Test
+    @Order(9)
     public void testDeleteNoteAndVerifyDisplay() throws InterruptedException {
-        testNoteCreationAndVerifyNote();
-        Thread.sleep(2000);
+        testNewUserLogIn();
+        Thread.sleep(3000);
+        notePage.clickNoteTab();
+        Thread.sleep(3000);
         notePage.clickDelete();
         Thread.sleep(2000);
         Assertions.assertTrue(notePage.getSuccessMessage());
@@ -235,7 +219,9 @@ class CloudStorageApplicationTests {
 
     }
 
+
     @Test
+    @Order(10)
     public void testSetCredentialVerifyDetailsAndEncryption() throws InterruptedException {
         testNewUserLogIn();
         Thread.sleep(3000);
@@ -258,7 +244,9 @@ class CloudStorageApplicationTests {
 
     }
 
+
     @Test
+    @Order(11)
     public void testCredentialEditAndViewDetails() throws InterruptedException {
         testSetCredentialVerifyDetailsAndEncryption();
         Thread.sleep(2000);
@@ -284,8 +272,12 @@ class CloudStorageApplicationTests {
 
 
     @Test
+    @Order(12)
     public void testDeleteCredential() throws InterruptedException {
-        testSetCredentialVerifyDetailsAndEncryption();
+        testNewUserLogIn();
+        Thread.sleep(3000);
+        credentialPage.clickCredTab();
+        Thread.sleep(2000);
         Thread.sleep(2000);
         credentialPage.clickDeleteCred();
         Thread.sleep(2000);

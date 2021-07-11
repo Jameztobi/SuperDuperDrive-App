@@ -148,7 +148,7 @@
                                         th:credId="${cred.getCredentialid()}"
                                         th:url="${cred.getUrl()}"
                                         th:username="${cred.getUsername()}"
-                                        th:password="${cred.password}"
+                                        th:password="${encryptionService.decryptValue(cred.getPassword(), cred.getKey())}"
                                         th:onclick="javascript:showCredentialModal(this.getAttribute('credId'), this.getAttribute('url'), this.getAttribute('username'), this.getAttribute('password'))"
                                 id="cred-EditBtn">Edit</button>
                                 <a class="btn btn-danger" th:href="@{'/credential/deleteCred/'+ ${cred.getCredentialid()}}" id="cred-DeleteBtn" name="credDelete">Delete</a>
@@ -223,5 +223,6 @@
                 $('#credentialModal').modal('show');
             }
         </script>
+    </div>
 </body>
 </html>

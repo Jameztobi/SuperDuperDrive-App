@@ -5,6 +5,7 @@ import com.udacity.jwdnd.course1.cloudstorage.model.NoteForm;
 import com.udacity.jwdnd.course1.cloudstorage.model.Users;
 import com.udacity.jwdnd.course1.cloudstorage.services.FileService;
 import com.udacity.jwdnd.course1.cloudstorage.services.UserService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -33,7 +34,7 @@ public class FileController {
     private String successMessage;
 
 
-
+    @Autowired
     public FileController(FileService fileService, UserService userService) {
         this.fileService = fileService;
         this.userService = userService;
@@ -48,8 +49,15 @@ public class FileController {
                errorMessage=null;
                return "result";
            }
-
            Integer userid=user.getuserid();
+
+           if(fileService.getFileDuplicates(multipartFile.getOriginalFilename(),userid)){
+               errorMessage="Duplicate files not allowed";
+               model.addAttribute("errorMessage", errorMessage);
+               errorMessage=null;
+               return "result";
+           }
+
            try{
                fileService.uploadFile(multipartFile, userid);
            }
