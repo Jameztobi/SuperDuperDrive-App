@@ -28,7 +28,6 @@ public class CredentialController {
 
     public CredentialController(CredentialService credentialService, UserService userService) {
         this.credentialService = credentialService;
-        this.encryptionService=encryptionService;
         this.userService = userService;
     }
 
